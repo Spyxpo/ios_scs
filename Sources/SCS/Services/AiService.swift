@@ -464,4 +464,68 @@ public final class AiService {
     public func deleteTool(_ toolId: String) async throws {
         _ = try await httpClient.delete(endpoint: "ai/tools/\(toolId)")
     }
+
+    // MARK: - TTS & STT
+
+    /// Convert text to speech
+    /// - Parameters:
+    ///   - text: Text to convert to speech
+    ///   - voice: Optional voice preset (defaults to 'v2/en_speaker_6')
+    /// - Returns: TTSResponse with base64 encoded audio data
+    public func textToSpeech(
+        text: String,
+        voice: String? = nil
+    ) async throws -> TTSResponse {
+        var body: [String: Any] = ["text": text]
+        if let voice = voice {
+            body["voice"] = voice
+        }
+
+        let response = try await httpClient.post(endpoint: "ai/tts", body: body)
+        return TTSResponse.fromDictionary(response)
+    }
+
+    /// Convert speech to text
+    /// - Parameter audio: Base64 encoded audio data
+    /// - Returns: STTResponse with transcribed text
+    public func speechToText(audio: String) async throws -> STTResponse {
+        let body: [String: Any] = ["audio": audio]
+        let response = try await httpClient.post(endpoint: "ai/stt", body: body)
+        return STTResponse.fromDictionary(response)
+    }
+}
+
+/// TTS response
+public struct TTSResponse: Codable {
+    public let success: Bool
+    public let audio: String
+    public let format: String
+    public let sampleRate: Int
+
+    enum CodingKeys: String, CodingKey {
+        case success, audio, format
+        case sampleRate = "sample_rate"
+    }
+
+    static func fromDictionary(_ dict: [String: Any]) -> TTSResponse {
+        return TTSResponse(
+            success: dict["success"] as? Bool ?? false,
+            audio: dict["audio"] as? String ?? "",
+            format: dict["format"] as? String ?? "wav",
+            sampleRate: dict["sample_rate"] as? Int ?? 24000
+        )
+    }
+}
+
+/// STT response
+public struct STTResponse: Codable {
+    public let success: Bool
+    public let text: String
+
+    static func fromDictionary(_ dict: [String: Any]) -> STTResponse {
+        return STTResponse(
+            success: dict["success"] as? Bool ?? false,
+            text: dict["text"] as? String ?? ""
+        )
+    }
 }
