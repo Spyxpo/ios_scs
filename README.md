@@ -1911,7 +1911,7 @@ let result = try await scs.functions.call("processPayment", data: [
 
 if result.success {
     let data = result.getDataAsDictionary()
-    print("Payment ID: \(data?["paymentId"] ?? "")")
+    print("Data: \(data ?? [:])")
 } else {
     print("Error: \(result.error ?? "")")
 }
