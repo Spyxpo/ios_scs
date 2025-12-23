@@ -27,6 +27,8 @@ public enum ScsError: Error, LocalizedError {
 
     // General errors
     case invalidArgument(String)
+    case invalidState(String)
+    case serverError(String)
     case unknown(String)
     case apiError(statusCode: Int, message: String)
 
@@ -64,6 +66,10 @@ public enum ScsError: Error, LocalizedError {
             return "Invalid response from server"
         case .invalidArgument(let message):
             return "Invalid argument: \(message)"
+        case .invalidState(let message):
+            return "Invalid state: \(message)"
+        case .serverError(let message):
+            return "Server error: \(message)"
         case .unknown(let message):
             return "Unknown error: \(message)"
         case .apiError(let statusCode, let message):
@@ -105,6 +111,10 @@ public enum ScsError: Error, LocalizedError {
             return "network/invalid-response"
         case .invalidArgument:
             return "invalid/argument"
+        case .invalidState:
+            return "invalid/state"
+        case .serverError:
+            return "server/error"
         case .unknown:
             return "unknown/error"
         case .apiError:

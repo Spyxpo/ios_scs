@@ -81,6 +81,11 @@ public final class Scs {
         AiService(httpClient: httpClient)
     }()
 
+    /// Call service for voice/video calls, group calls, and live streaming
+    public lazy var calls: CallService = {
+        CallService(httpClient: httpClient, config: config)
+    }()
+
     private init(config: ScsConfig) {
         self.config = config
         self.sessionStorage = SessionStorage()
