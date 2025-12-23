@@ -5,19 +5,19 @@ import Foundation
 /// Example usage:
 /// ```swift
 /// // Call a function
-/// let result = try await scs.functions.call("processPayment", data: [
-///     "amount": 100,
-///     "currency": "USD"
+/// let result = try await scs.functions.call("processData", data: [
+///     "value": 100,
+///     "type": "analytics"
 /// ])
 ///
 /// if result.success {
 ///     let data = result.getDataAsDictionary()
-///     print("Payment ID: \(data?["paymentId"] ?? "")")
+///     print("Result: \(data?["result"] ?? "")")
 /// }
 ///
 /// // Get a callable reference
-/// let processPayment = scs.functions.httpsCallable("processPayment")
-/// let result = try await processPayment.call(["amount": 100])
+/// let processData = scs.functions.httpsCallable("processData")
+/// let result = try await processData.call(["value": 100])
 ///
 /// // List functions
 /// let functions = try await scs.functions.list()
