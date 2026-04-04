@@ -529,3 +529,65 @@ public struct STTResponse: Codable {
         )
     }
 }
+
+// MARK: - Provider Settings
+
+/// Current LLM provider configuration for a project.
+/// The API key is never returned — only `hasApiKey` indicates one is set.
+public struct AiProviderSettings {
+    public let provider: String
+    public let model: String
+    public let baseUrl: String
+    public let hasApiKey: Bool
+
+    static func fromDictionary(_ dict: [String: Any]) -> AiProviderSettings {
+        return AiProviderSettings(
+            provider: dict["provider"] as? String ?? "",
+            model: dict["model"] as? String ?? "",
+            baseUrl: dict["baseUrl"] as? String ?? "",
+            hasApiKey: dict["hasApiKey"] as? Bool ?? false
+        )
+    }
+}
+
+extension AiService {
+    /// Get the LLM provider configured for this project.
+    ///
+    /// Supported providers: `huggingface`, `openai`, `groq`, `anthropic`,
+    /// `google`, `together`, `mistral`, `openrouter`, `custom`
+    ///
+    /// - Returns: Dictionary with `settings` and `supportedProviders` keys.
+    ///   The API key is never returned — check `hasApiKey` instead.
+    public func getProviderSettings() async throws -> [String: Any] {
+        return try await httpClient.get(endpoint: "ai/settings/provider")
+    }
+
+    /// Configure which LLM provider this project uses.
+    ///
+    /// - Parameters:
+    ///   - provider: Provider ID — e.g. `"huggingface"`, `"openai"`, `"groq"`
+    ///   - apiKey:   API key or token for the provider.
+    ///               Hugging Face: get a free token at huggingface.co/settings/tokens
+    ///   - model:    Default model ID (optional; provider default used if nil)
+    ///   - baseUrl:  Custom base URL — only needed when `provider == "custom"`
+    ///
+    /// Example:
+    /// ```swift
+    /// try await scs.ai.updateProviderSettings(
+    ///     provider: "huggingface",
+    ///     apiKey: "hf_...",
+    ///     model: "meta-llama/Llama-3.2-3B-Instruct"
+    /// )
+    /// ```
+    public func updateProviderSettings(
+        provider: String,
+        apiKey: String,
+        model: String? = nil,
+        baseUrl: String? = nil
+    ) async throws -> [String: Any] {
+        var body: [String: Any] = ["provider": provider, "apiKey": apiKey]
+        if let model = model { body["model"] = model }
+        if let baseUrl = baseUrl { body["baseUrl"] = baseUrl }
+        return try await httpClient.put(endpoint: "ai/settings/provider", body: body)
+    }
+}
